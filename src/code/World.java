@@ -84,12 +84,17 @@ public class World {
         rescueboat_object =new RescueBoat(grid_object, cg_capacity, cg_x, cg_y);
     }
 
-    private void genShips(int num_ships , int [] shipsloc_list)throws Exception{
-//        this.actualNumberOfShips = (minNumberShips + (int)(Math.random() * (((grid_object.getM()* grid_object.getN()) - minNumberShips) + 1)));
+    private void genShips(int num_ships, int[] shipsloc_list) throws Exception {
         this.actualNumberOfShips = num_ships;
-        for(int i=0;i<shipsloc_list.length;i+=3){
-            ships_objectlist.add(new Ship(grid_object, shipsloc_list[i], shipsloc_list[i+1], shipsloc_list[i+2]));
-        }
+        if (shipsloc_list.length % 3 != 0) {
+        throw new Exception("Ship locations must be in groups of 3 (x,y,passengers)");
+    }
+        for (int i = 0; i < shipsloc_list.length && i/3 < num_ships; i += 3) {
+        ships_objectlist.add(new Ship(grid_object, 
+            shipsloc_list[i], 
+            shipsloc_list[i+1], 
+            shipsloc_list[i+2]));
+    }
         for(int i=0;i<num_ships;i++){
             this.totalNumberOfShipsPassengers += ships_objectlist.get(i).getNumberOfPassengers();
             this.totalNumberOfShipsBoxes += 1;
@@ -233,26 +238,7 @@ public class World {
         grid_object.moveObjectOnGrid(rescueboat_object,this.goalLocation);
     }
 
-    private void takeManualMotionAction() throws Exception {
 
-        boolean is_action_valid = false;
-        while (is_action_valid == false)
-        {
-            ManCtrl action = new ManCtrl(grid_object , rescueboat_object, stations_objectlist , ships_objectlist, grid_object.isCoastGuardAtShip(), grid_object.isCoastGuardAtStation());
-            is_action_valid = grid_object.preformMotionAction(rescueboat_object, action.get_manual_action());
-            if (is_action_valid){
-                // Add action to the action list for summary reporting at the end of the mission
-                takenactions_list.add(action.get_manual_action());
-                // an action was taken, so the ship status must be updated
-                for(int j=0;j<this.actualNumberOfShips;j++) {
-                    ships_objectlist.get(j).cyclicFunction();
-                }
-            }
-            else{
-                System.out.println("Invalid code.Action was taken, will prompt another action");
-            }
-        }
-    }
 
     /**
      * This function sets the location of the ship to save when there are more than one ship
@@ -452,7 +438,6 @@ public class World {
             System.out.println(goalLocation.getFirstValue());
             System.out.println(goalLocation.getSecondValue());
             System.out.println(missionStateObject);
-            takeManualMotionAction();
             new Display(grid_object , rescueboat_object, stations_objectlist , ships_objectlist, grid_object.isCoastGuardAtShip(), grid_object.isCoastGuardAtStation());
         }
         else
@@ -503,13 +488,13 @@ public class World {
 
     public String concatString(){
         StringJoiner joiner = new StringJoiner(";");
-        joiner.add(convertListToString(takenactions_list));
-        joiner.add(String.valueOf(numberOfSunkPassengers));
-        joiner.add(String.valueOf(numberOfSavedBoxes));
-        joiner.add(String.valueOf(num_explored_nodes));
+        joiner.add("Taken actions: " + convertListToString(takenactions_list));
+        joiner.add("Number of Saved Passengers: " + String.valueOf(numberOfSavedPassengers));
+        joiner.add("Number of Sunk Passengers: " + String.valueOf(numberOfSunkPassengers));
+        joiner.add("Number of Saved Boxes: " + String.valueOf(numberOfSavedBoxes));
 
         String text = joiner.toString();
-        System.out.println("comma separated String: " + text);
+        System.out.println("Solution: " + text);
         return text;
     }
 }

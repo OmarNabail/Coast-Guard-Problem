@@ -91,5 +91,17 @@ public class CoastGuard {
 //        String solution = "dummy_return";
 //        return solution;
     }
+    public static void main(String[] args) {
+    try {
+    // Input format: "GridSize; BoatCapacity; BoatStartPos; Stations; Ships position and Number of Passensgers"
+    String input = "5,5;5;0,0;2,2;3,3,10";          
+    String strategy = "AS2"; 
+        boolean visualize = false;
+        CoastGuard.solve(input, strategy, visualize);
+    } catch (Exception e) {
+        System.err.println("Error: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
 
 }
